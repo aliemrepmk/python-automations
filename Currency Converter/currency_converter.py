@@ -1,3 +1,5 @@
+import tkinter as tk
+from tkinter import ttk
 import requests
 
 API_KEY = 'fca_live_3Hmy9m6TLPQJckoxmjVoPDTCrtHkfcPDwJWl1XZg'
@@ -5,7 +7,24 @@ BASE_URL = f"https://api.freecurrencyapi.com/v1/latest?apikey={API_KEY}"
 
 CURRENCIES = ["USD", "EUR", "CAD", "AUD", "GBP", "RUB", "TRY", "JPY", "CNY"]
 
-def convert_currency(base):
+def convert_currency(base, amount_var, result_label):
+    amount = amount_var.get()
+    result_label.config(text="Converting...")
+
+    data = convert_currency_api(base, amount)
+    if not data:
+        result_label.config(text="Error making API request")
+        return
+
+    del data[base]
+
+    result_label.config(text="")
+    for currency in CURRENCIES:
+        if currency in data:
+            converted_value = data[currency] * float(amount)
+            result_label.config(text=result_label.cget("text") + f"{currency}: {converted_value:.4f}\n")
+
+def convert_currency_api(base, amount):
     currencies = ",".join(CURRENCIES)
     url = f"{BASE_URL}&base_currency={base}&currencies={currencies}"
 
@@ -17,41 +36,35 @@ def convert_currency(base):
     except requests.RequestException as e:
         print(f"Error making API request: {e}")
         return None
-    
-def extract_numeric_and_letter_parts(input):
-    numeric_part = ''
-    letter_part = ''
-
-    for char in input:
-        if char.isdigit():
-            numeric_part += char
-        elif char.isalpha():
-            letter_part += char
-
-    return {'numeric_part': int(numeric_part) if numeric_part else None,
-            'letter_part': letter_part if letter_part else None}
 
 def main():
-    while True:
-        base = input("Enter the amount and the base currency for conversion (q for quit): ").upper()
+    root = tk.Tk()
+    root.title("Currency Converter")
 
-        if base == "Q":
-            break
-        else:
-            result = extract_numeric_and_letter_parts(base)
-            amount = result['numeric_part']
-            currency = result['letter_part']
+    amount_label = ttk.Label(root, text="Enter amount:")
+    amount_label.pack(pady=10)
 
-        data = convert_currency(currency)
-        if not data:
-            continue
+    amount_var = tk.StringVar()
+    amount_entry = ttk.Entry(root, textvariable=amount_var)
+    amount_entry.pack(pady=10)
 
-        del data[currency]
+    base_label = ttk.Label(root, text="Enter base currency:")
+    base_label.pack(pady=10)
 
-        for currency in CURRENCIES:
-            if currency in data:
-                converted_value = data[currency] * amount
-                print(f"{currency}: {converted_value:.4f}")
+    base_var = tk.StringVar()
+    base_entry = ttk.Entry(root, textvariable=base_var)
+    base_entry.pack(pady=10)
+
+    result_label = ttk.Label(root, text="")
+    result_label.pack(pady=10)
+
+    convert_button = ttk.Button(root, text="Convert", command=lambda: convert_currency(base_var.get(), amount_var, result_label))
+    convert_button.pack(pady=10)
+
+    quit_button = ttk.Button(root, text="Quit", command=root.destroy)
+    quit_button.pack(pady=10)
+
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
