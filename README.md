@@ -6,4 +6,4 @@ Some projects I created with Python mostly about automations and use of APIs
 
 - [x] [Currency Converter](https://github.com/aliemrepmk/python-automations/tree/main/Currency%20Converter)
 - [x] [Youtube Downloader](https://github.com/aliemrepmk/python-automations/tree/main/Youtube%20Downloader)
-- [x] Weather App
+- [x] [Weather App](https://github.com/aliemrepmk/python-automations/tree/main/Weather%20Data)
